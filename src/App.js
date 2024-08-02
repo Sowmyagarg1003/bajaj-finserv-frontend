@@ -16,7 +16,7 @@ function App() {
       let targetDiv = document.querySelector('#target');
       targetDiv.innerHTML = `${JSON.stringify(response.data)}`;
       //  setResponseData(response.data);
-     // renderResponse(response.data);
+      // renderResponse(response.data);
     } catch (err) {
       setError('Invalid JSON input');
     }
@@ -68,3 +68,4 @@ function App() {
 }
 
 export default App;
+
