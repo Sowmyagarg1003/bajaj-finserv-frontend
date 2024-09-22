@@ -26,7 +26,7 @@ function App() {
         file_b64: parsedData.file_b64 || null
       };
 
-      const response = await axios.post('http://127.0.0.1:5000/bfhl', requestData);
+      const response = await axios.post('https://bajaj-finserv-swart.vercel.app/bfhl', requestData);
       setResponseData(response.data);
     } catch (err) {
       console.error("Input JSON:", jsonInput); // Log the input for debugging
