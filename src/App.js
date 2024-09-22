@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 function App() {
   const [jsonInput, setJsonInput] = useState('');
@@ -7,18 +7,20 @@ function App() {
   const [error, setError] = useState('');
   const [selectedOptions, setSelectedOptions] = useState([]);
 
+  useEffect(() => {
+    document.title = 'RA2111003030017';
+  }, []);
+
   const handleSubmit = async () => {
     try {
-      const parsedData = JSON.parse(jsonInput); // Validate JSON
+      const parsedData = JSON.parse(jsonInput); 
       setError('');
 
       const response = await axios.post('http://127.0.0.1:5000/bfhl', parsedData);
-      let targetDiv = document.querySelector('#target');
-      targetDiv.innerHTML = `${JSON.stringify(response.data)}`;
-      //  setResponseData(response.data);
-      // renderResponse(response.data);
+      setResponseData(response.data); 
     } catch (err) {
       setError('Invalid JSON input');
+      setResponseData(null);
     }
   };
 
@@ -27,23 +29,32 @@ function App() {
     setSelectedOptions(options);
   };
 
-  const renderResponse = (responseData) => {
-    if (!responseData) return null;
-    const { numbers, alphabets, highest_alphabet } = responseData;
-    console.log(numbers);
-    // let dataToDisplay = [];
+ 
+  const renderFilteredResponse = () => {
+    if (!responseData || selectedOptions.length === 0) return null;
 
-    // if (selectedOptions.includes('Numbers')) dataToDisplay = [...dataToDisplay, ...numbers];
-    // if (selectedOptions.includes('Alphabets')) dataToDisplay = [...dataToDisplay, ...alphabets];
-    // if (selectedOptions.includes('Highest Alphabet')) dataToDisplay = [...dataToDisplay, ...highest_alphabet];
+    const { numbers, alphabets, highest_lowercase_alphabet } = responseData; 
+    let filteredResponse = [];
+
+    if (selectedOptions.includes('Numbers'))
+      filteredResponse.push(`Numbers: ${numbers && numbers.length > 0 ? numbers.join(', ') : 'No numbers'}`);
+
+    if (selectedOptions.includes('Alphabets'))
+      filteredResponse.push(`Alphabets: ${alphabets && alphabets.length > 0 ? alphabets.join(', ') : 'No alphabets'}`);
+
+    if (selectedOptions.includes('Highest Alphabet'))
+      filteredResponse.push(`Highest Alphabet: ${highest_lowercase_alphabet !== null ? highest_lowercase_alphabet : 'No lowercase alphabet'}`); // <-- Updated key name
 
     return (
       <div>
-        <h2>Response:</h2>
-        <pre>{JSON.stringify(responseData, null, 2)}</pre>
+        <h3>Filtered Response:</h3>
+        {filteredResponse.map((item, index) => (
+          <p key={index}>{item}</p>
+        ))}
       </div>
     );
   };
+
 
   return (
     <div>
@@ -52,20 +63,29 @@ function App() {
         value={jsonInput}
         onChange={(e) => setJsonInput(e.target.value)}
         placeholder='Enter JSON here...'
-        rows={10}
-        cols={30}
+        rows={5}
+        cols={40}
       />
+      <br />
       <button onClick={handleSubmit}>Submit</button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      <select multiple onChange={handleSelectChange}>
-        <option value="Alphabets">Alphabets</option>
-        <option value="Numbers">Numbers</option>
-        <option value="Highest Alphabet">Highest Alphabet</option>
-      </select>
-      <p id='target'></p>
+
+      {/* Multi-Select Dropdown */}
+      {responseData && (
+        <div>
+          <label>Multi Filter:</label>
+          <select multiple onChange={handleSelectChange}>
+            <option value="Numbers">Numbers</option>
+            <option value="Alphabets">Alphabets</option>
+            <option value="Highest Alphabet">Highest Alphabet</option>
+          </select>
+        </div>
+      )}
+
+      {/* Render the filtered response */}
+      {renderFilteredResponse()}
     </div>
   );
 }
 
 export default App;
-
