@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 function App() {
   const [jsonInput, setJsonInput] = useState('');
@@ -7,57 +7,42 @@ function App() {
   const [error, setError] = useState('');
   const [selectedOptions, setSelectedOptions] = useState([]);
 
+  // Set the document title as the roll number
   useEffect(() => {
     document.title = 'RA2111003030017';
   }, []);
 
+  // Function to handle form submission and API call
   const handleSubmit = async () => {
-    if (!jsonInput.trim()) {
-      setError('Input cannot be empty');
-      return;
-    }
-
     try {
-      const parsedData = JSON.parse(jsonInput);
+      const parsedData = JSON.parse(jsonInput); // Validate JSON input
       setError('');
 
-      const requestData = {
-        data: parsedData.data || [],
-        file_b64: parsedData.file_b64 || null
-      };
-
-      const response = await axios.post('https://bajaj-finserv-swart.vercel.app/bfhl', requestData);
-      setResponseData(response.data);
+      // Call the backend REST API
+      const response = await axios.post('http://bajaj-finserv-swart.vercel.app/bfhl', parsedData);
+      setResponseData(response.data); // Store response data
     } catch (err) {
-      console.error("Input JSON:", jsonInput); // Log the input for debugging
-      console.error(err); // Log error details
       setError('Invalid JSON input');
       setResponseData(null);
     }
   };
 
+  // Handle the dropdown selection change
   const handleSelectChange = (event) => {
     const options = Array.from(event.target.selectedOptions, option => option.value);
     setSelectedOptions(options);
   };
 
+  // Render the filtered response based on selected options
   const renderFilteredResponse = () => {
     if (!responseData || selectedOptions.length === 0) return null;
 
-    const { numbers = [], alphabets = [], highest_lowercase_alphabet = "No lowercase alphabet found" } = responseData;
+    const { numbers, alphabets, highest_alphabet } = responseData;
     let filteredResponse = [];
 
-    if (selectedOptions.includes('Alphabets')) {
-      filteredResponse.push(`Alphabets: ${alphabets.length > 0 ? alphabets.join(', ') : 'No alphabets'}`);
-    }
-
-    if (selectedOptions.includes('Numbers')) {
-      filteredResponse.push(`Numbers: ${numbers.length > 0 ? numbers.join(', ') : 'No numbers'}`);
-    }
-
-    if (selectedOptions.includes('Highest lowercase alphabet')) {
-      filteredResponse.push(`Highest lowercase alphabet: ${highest_lowercase_alphabet}`);
-    }
+    if (selectedOptions.includes('Numbers')) filteredResponse = [...filteredResponse, `Numbers: ${numbers.join(', ')}`];
+    if (selectedOptions.includes('Alphabets')) filteredResponse = [...filteredResponse, `Alphabets: ${alphabets.join(', ')}`];
+    if (selectedOptions.includes('Highest Alphabet')) filteredResponse = [...filteredResponse, `Highest Alphabet: ${highest_alphabet}`];
 
     return (
       <div>
@@ -86,11 +71,11 @@ function App() {
       {/* Multi-Select Dropdown */}
       {responseData && (
         <div>
-          <label>Multi-Select Filter:</label>
+          <label>Multi Filter:</label>
           <select multiple onChange={handleSelectChange}>
-            <option value="Alphabets">Alphabets</option>
             <option value="Numbers">Numbers</option>
-            <option value="Highest lowercase alphabet">Highest lowercase alphabet</option>
+            <option value="Alphabets">Alphabets</option>
+            <option value="Highest Alphabet">Highest Alphabet</option>
           </select>
         </div>
       )}
