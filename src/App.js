@@ -26,8 +26,7 @@ function App() {
         file_b64: parsedData.file_b64 || null
       };
 
-      // Use the deployed backend URL
-      const response = await axios.post('https://bajaj-finserv-swart.vercel.app/bfhl', requestData);
+      const response = await axios.post('http://127.0.0.1:5000/bfhl', requestData);
       setResponseData(response.data);
     } catch (err) {
       console.error("Input JSON:", jsonInput); // Log the input for debugging
@@ -57,7 +56,7 @@ function App() {
     }
 
     if (selectedOptions.includes('Highest lowercase alphabet')) {
-      filteredResponse.push(`Highest lowercase alphabet: ${highest_lowercase_alphabet.length > 0 ? highest_lowercase_alphabet : 'No lowercase alphabet'}`);
+      filteredResponse.push(`Highest lowercase alphabet: ${highest_lowercase_alphabet}`);
     }
 
     return (
